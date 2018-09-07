@@ -22,7 +22,7 @@ services:
     image: node:latest
     restart: always
     expose: 
-      - ${NODE_SERVER_PORT}
+      - 3000:3000
     volumes:
       - ${NODE_SERVER_WINDOWS_SOURCE_PATH}:/var/www
     working_dir: /var/www
