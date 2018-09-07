@@ -1,0 +1,50 @@
+version: '3.6'
+
+services: 
+  mariadb-test:
+    container_name: mariadb-test
+    image: mariadb:latest
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DB}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PW}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PW}
+    # volumes: 
+      # - ${MYSQL_WINDOWS_DATA_PATH}:/var/lib/mysql
+      # - ${MYSQL_WINDOWS_CONFIG_PATH}:/etc/mysql/conf.d
+      # - ${MYSQL_WINDOWS_INIT_PATH}:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+
+  node-server-test:
+    container_name: node-server-test
+    image: node:latest
+    restart: always
+    expose: 
+      - ${NODE_SERVER_PORT}
+    volumes:
+      - ${NODE_SERVER_WINDOWS_SOURCE_PATH}:/var/www
+    working_dir: /var/www
+    command: >
+      /bin/bash -c
+      'npm start'
+
+  nginx-test:
+    container_name: nginx-test
+    image: nginx:latest
+    # restart: always
+    ports: 
+      - 80:80
+      # - 443:443
+    volumes: 
+      - ${NGINX_WINDOWS_LOCAL_DEFAULT_CONFIG}:/etc/nginx/conf.d
+      # - ${SSL_CERT_PATH}:/etc/letsencrypt
+    # command: /bin/bash -c "envsubst < /etc/nginx/conf.d/default.conf.template/default.conf > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    links: 
+      - node-server-test
+
+networks:
+  default:
+    external: 
+      name: ${DOCKER_NETWORK_NAME_CONFIG}
